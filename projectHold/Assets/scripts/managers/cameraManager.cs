@@ -8,6 +8,9 @@ public class cameraManager : MonoBehaviour
 	battleManager battleManager;
 
 	[SerializeField]
+	resourceManager resourceManager;
+
+	[SerializeField]
 	Transform mainCameraTransform;
 	[SerializeField]
 	float[] mainCameraBoundaries = new float[4];
@@ -18,16 +21,16 @@ public class cameraManager : MonoBehaviour
 	public void initilize()
 	{
 		battleManager = GetComponent<battleManager>();
+		resourceManager = GetComponent<resourceManager>();
+		cameraSpeed = resourceManager.getCameraSpeed();
 		float verticalSpace = battleManager.getMap().getSize()[0] - 10;
-		if(verticalSpace > 0)
-		{
+		if(verticalSpace > 0) {
 			mainCameraBoundaries[0] = verticalSpace * 2;
 			mainCameraBoundaries[1] = verticalSpace * -2;
 			mainCameraBoundaries[2] = (verticalSpace * 1) + 2;
 			mainCameraBoundaries[3] = (verticalSpace * -1) + 2;
 		}
-		else
-		{
+		else {
 			mainCameraBoundaries[0] = 0;
 			mainCameraBoundaries[1] = -0;
 			mainCameraBoundaries[2] = 2;
@@ -35,43 +38,28 @@ public class cameraManager : MonoBehaviour
 		}
 	}
 
+	public void updateCameraSpeed(System.Single value) {
+		cameraSpeed = value;
+		resourceManager.setCameraSpeed(value);
+	}
+
 	void Update()
 	{
-		if(mainCameraTransform.position.x > mainCameraBoundaries[0])
-		{
-			mainCameraTransform.position = new Vector3(mainCameraBoundaries[0], mainCameraTransform.position.y, mainCameraTransform.position.z);
-			return;
-		}
-		if (mainCameraTransform.position.x < mainCameraBoundaries[1])
-		{
-			mainCameraTransform.position = new Vector3(mainCameraBoundaries[1], mainCameraTransform.position.y, mainCameraTransform.position.z);
-			return;
-		}
-		if (mainCameraTransform.position.y > mainCameraBoundaries[2])
-		{
-			mainCameraTransform.position = new Vector3(mainCameraTransform.position.x, mainCameraBoundaries[2], mainCameraTransform.position.z);
-			return;
-		}
-		if (mainCameraTransform.position.y < mainCameraBoundaries[3])
-		{
-			mainCameraTransform.position = new Vector3(mainCameraTransform.position.x, mainCameraBoundaries[3], mainCameraTransform.position.z);
-			return;
-		}
 		if (Input.GetKey("w"))
 		{
-				mainCameraTransform.position = new Vector3(mainCameraTransform.position.x, mainCameraTransform.position.y + cameraSpeed * Time.deltaTime, mainCameraTransform.position.z);
+				mainCameraTransform.position = new Vector3(mainCameraTransform.position.x, Mathf.Clamp(mainCameraTransform.position.y + cameraSpeed * Time.deltaTime,mainCameraBoundaries[3], mainCameraBoundaries[2]), mainCameraTransform.position.z);
 		}
 		if (Input.GetKey("s"))
 		{
-			mainCameraTransform.position = new Vector3(mainCameraTransform.position.x, mainCameraTransform.position.y - cameraSpeed * Time.deltaTime, mainCameraTransform.position.z);
+			mainCameraTransform.position = new Vector3(mainCameraTransform.position.x, Mathf.Clamp(mainCameraTransform.position.y - cameraSpeed * Time.deltaTime, mainCameraBoundaries[3], mainCameraBoundaries[2]), mainCameraTransform.position.z);
 		}
 		if (Input.GetKey("a"))
 		{
-			mainCameraTransform.position = new Vector3(mainCameraTransform.position.x - cameraSpeed * Time.deltaTime, mainCameraTransform.position.y, mainCameraTransform.position.z);
+			mainCameraTransform.position = new Vector3(Mathf.Clamp(mainCameraTransform.position.x - cameraSpeed * Time.deltaTime, mainCameraBoundaries[1], mainCameraBoundaries[0]), mainCameraTransform.position.y, mainCameraTransform.position.z);
 		}
 		if (Input.GetKey("d"))
 		{
-			mainCameraTransform.position = new Vector3(mainCameraTransform.position.x + cameraSpeed * Time.deltaTime, mainCameraTransform.position.y, mainCameraTransform.position.z);
+			mainCameraTransform.position = new Vector3(Mathf.Clamp(mainCameraTransform.position.x + cameraSpeed * Time.deltaTime, mainCameraBoundaries[1], mainCameraBoundaries[0]), mainCameraTransform.position.y, mainCameraTransform.position.z);
 		}
 	}
 }

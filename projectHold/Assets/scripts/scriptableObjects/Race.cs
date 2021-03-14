@@ -15,8 +15,51 @@ public class Race : ScriptableObject
 	[SerializeField]
 	CreatureSize size;
 
+	[SerializeField]
+	PawnModel model;
+	[SerializeField]
+	Sprite modelSprite;
+
 	public int getSpeed()
 	{
 		return baseSpeed;
+	}
+
+	public int getAttackRange(int weaponLength)
+	{
+		switch(size)
+		{
+			case CreatureSize.Short:
+			{
+				switch(weaponLength)
+				{
+					case 1:
+					case 2:
+					case 3:
+					case 4:
+						return 1;
+					case 5:
+					case 6:
+					case 7:
+					case 8:
+					case 9:
+					case 10:
+						return 2;
+					default:
+						return 3;
+				}
+			}
+		}
+		return -1;
+	}
+
+	//----------------------------------Visuals Getters
+	public PawnModel getModel()
+	{
+		return model;
+	}
+	public Sprite getModelSprite()
+	{
+		return modelSprite;
 	}
 }

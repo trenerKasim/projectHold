@@ -2,17 +2,20 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using UnityEngine.Tilemaps;
 
+public enum aStarMode {move, attack }
 public class AStar
 {
 	mapManager mapManager;
+	aStarMode mode;
     AStarTile[,] tiles;
 	AStarTile current;
 	List<AStarTile> open = new List<AStarTile>();
 	List<AStarTile> close = new List<AStarTile>();
 	List<AStarTile> path = new List<AStarTile>();
 
-	public void generateRange(int originX, int originY, int range)
+	public void generateRange(int originX, int originY, int range, Tile tileType)
 	{
 		range = range * 10;
 		close.Clear();
@@ -89,11 +92,11 @@ public class AStar
 			if (current.G + 15 < range + 1)
 			{
 				//Debug.Log(current.G);
-				if (current.X - 1 > -1 && current.Y - 1 > -1)
+				if ((current.X - 1 > -1 && current.Y - 1 > -1))
 				{
 					if (!tiles[current.X - 1, current.Y - 1].isInClose)
 					{
-						if (tiles[current.X - 1, current.Y - 1].walkable)
+						if ((tiles[current.X - 1, current.Y - 1].walkable && tiles[current.X - 1, current.Y].walkable) || (tiles[current.X - 1, current.Y - 1].walkable && tiles[current.X, current.Y - 1].walkable))
 						{
 							if (!tiles[current.X - 1, current.Y - 1].isInOpen || tiles[current.X - 1, current.Y - 1].G > current.G + 15)
 							{
@@ -108,7 +111,7 @@ public class AStar
 				{
 					if (!tiles[current.X + 1, current.Y - 1].isInClose)
 					{
-						if (tiles[current.X + 1, current.Y - 1].walkable)
+						if ((tiles[current.X + 1, current.Y - 1].walkable && tiles[current.X + 1, current.Y].walkable) || (tiles[current.X + 1, current.Y - 1].walkable && tiles[current.X, current.Y - 1].walkable))
 						{
 							if (!tiles[current.X + 1, current.Y - 1].isInOpen || tiles[current.X + 1, current.Y - 1].G > current.G + 15)
 							{
@@ -123,7 +126,7 @@ public class AStar
 				{
 					if (!tiles[current.X - 1, current.Y + 1].isInClose)
 					{
-						if (tiles[current.X - 1, current.Y + 1].walkable)
+						if ((tiles[current.X - 1, current.Y + 1].walkable && tiles[current.X - 1, current.Y].walkable) || (tiles[current.X - 1, current.Y + 1].walkable && tiles[current.X, current.Y + 1].walkable))
 						{
 							if (!tiles[current.X - 1, current.Y + 1].isInOpen || tiles[current.X - 1, current.Y + 1].G > current.G + 15)
 							{
@@ -138,7 +141,7 @@ public class AStar
 				{
 					if (!tiles[current.X + 1, current.Y + 1].isInClose)
 					{
-						if (tiles[current.X + 1, current.Y + 1].walkable)
+						if ((tiles[current.X + 1, current.Y + 1].walkable && tiles[current.X + 1, current.Y].walkable) || (tiles[current.X + 1, current.Y + 1].walkable && tiles[current.X, current.Y + 1].walkable))
 						{
 							if (!tiles[current.X + 1, current.Y + 1].isInOpen || tiles[current.X + 1, current.Y + 1].G > current.G + 15)
 							{
@@ -160,18 +163,21 @@ public class AStar
 		{
 			if(tile.G != 0)
 			{
-				mapManager.moveRangeGenerateTile(tile.X, tile.Y);
+				mapManager.generateRangeTile(tile.X, tile.Y,tileType);
 			}
 			//Debug.Log("X" + tile.X + "Y" + tile.Y);
 		}
 
 	}
 
-	public bool findPath(int originX, int originY, int targetX, int targetY, int range)
+	public bool findPath(int originX, int originY, int targetX, int targetY, int range, Unit movingUnit)
 	{
 		path.Clear();
+		path.TrimExcess();
 		close.Clear();
+		close.TrimExcess();
 		open.Clear();
+		open.TrimExcess();
 		open.Add(tiles[originX, originY]);
 		open[0].parent = open[0];
 		while (open.Capacity > 1)
@@ -189,6 +195,7 @@ public class AStar
 				AStarTile backtraked = current;
 				while(backtraked.parent != backtraked)
 				{
+					path.Insert(0,backtraked);
 					//Debug.Log(backtraked.parent.X + " " + backtraked.parent.Y);
 					//mapManager.pathGenerateTile(backtraked.X, backtraked.Y);
 					backtraked = backtraked.parent;
@@ -272,7 +279,7 @@ public class AStar
 			{
 				if (!tiles[current.X - 1, current.Y - 1].isInClose)
 				{
-					if (tiles[current.X - 1, current.Y - 1].walkable)
+					if ((tiles[current.X - 1, current.Y - 1].walkable && tiles[current.X - 1, current.Y].walkable) || (tiles[current.X - 1, current.Y - 1].walkable && tiles[current.X, current.Y - 1].walkable))
 					{
 						tiles[current.X - 1, current.Y - 1].setH(targetX, targetY);
 						if (!tiles[current.X - 1, current.Y - 1].isInOpen || tiles[current.X - 1, current.Y - 1].G > current.G + 15)
@@ -290,7 +297,7 @@ public class AStar
 			{
 				if (!tiles[current.X + 1, current.Y - 1].isInClose)
 				{
-					if (tiles[current.X + 1, current.Y - 1].walkable)
+					if ((tiles[current.X + 1, current.Y - 1].walkable && tiles[current.X + 1, current.Y].walkable) || (tiles[current.X + 1, current.Y - 1].walkable && tiles[current.X, current.Y - 1].walkable))
 					{
 						tiles[current.X + 1, current.Y- 1].setH(targetX, targetY);
 						if (!tiles[current.X + 1, current.Y - 1].isInOpen || tiles[current.X + 1, current.Y - 1].G > current.G + 15)
@@ -308,7 +315,7 @@ public class AStar
 			{
 				if (!tiles[current.X - 1, current.Y + 1].isInClose)
 				{
-					if (tiles[current.X - 1, current.Y + 1].walkable)
+					if ((tiles[current.X - 1, current.Y + 1].walkable && tiles[current.X - 1, current.Y].walkable) || (tiles[current.X - 1, current.Y + 1].walkable && tiles[current.X, current.Y + 1].walkable))
 					{
 						tiles[current.X - 1, current.Y + 1].setH(targetX, targetY);
 						if (!tiles[current.X - 1, current.Y + 1].isInOpen || tiles[current.X - 1, current.Y + 1].G > current.G + 15)
@@ -326,7 +333,7 @@ public class AStar
 			{
 				if (!tiles[current.X + 1, current.Y + 1].isInClose)
 				{
-					if (tiles[current.X + 1, current.Y + 1].walkable)
+					if ((tiles[current.X + 1, current.Y + 1].walkable && tiles[current.X + 1, current.Y].walkable) || (tiles[current.X + 1, current.Y + 1].walkable && tiles[current.X, current.Y + 1].walkable))
 					{
 						tiles[current.X + 1, current.Y + 1].setH(targetX, targetY);
 						if (!tiles[current.X + 1, current.Y + 1].isInOpen || tiles[current.X + 1, current.Y + 1].G > current.G + 15)
@@ -348,28 +355,50 @@ public class AStar
 		return false;
 	}
 
-	public AStar(int[] size, mapManager givenMapManager)
+	public List<AStarTile> getPath()
+	{
+		path.TrimExcess();
+		//Debug.Log(path.Capacity);
+		return path;
+	}
+
+	public AStar(int[] size, mapManager givenMapManager, aStarMode givenMode)
 	{
 		mapManager = givenMapManager;
+		mode = givenMode;
 		tiles = new AStarTile[size[0], size[1]];
 		for(int x=0;x<size[0];x++)
 		{
 			for(int y=0;y<size[1];y++)
 			{
-				if (mapManager.getMap().getTile(x, y).getTileAccess() == access.unoccupaied && mapManager.getMap().getTile(x,y).checkIfOccupied() == false)
+				if (mode == aStarMode.move)
 				{
-					tiles[x, y] = new AStarTile(x, y, true);
+					if (mapManager.getMap().getTile(x, y).getTileAccess() == access.unoccupaied && mapManager.getMap().getTile(x, y).checkIfOccupied() == false)
+					{
+						tiles[x, y] = new AStarTile(x, y, true);
+					}
+					else
+					{
+						tiles[x, y] = new AStarTile(x, y, false);
+					}
 				}
-				else
+				else if (mode == aStarMode.attack)
 				{
-					tiles[x, y] = new AStarTile(x, y, false);
+					if (mapManager.getMap().getTile(x, y).getTileAccess() != access.highObstacle)
+					{
+						tiles[x, y] = new AStarTile(x, y, true);
+					}
+					else
+					{
+						tiles[x, y] = new AStarTile(x, y, false);
+					}
 				}
 			}
 		}
 	}
 }
 
-class AStarTile
+public class AStarTile
 {
 	public int X = 0;
 	public int Y = 0;

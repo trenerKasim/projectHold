@@ -5,23 +5,34 @@ using UnityEngine;
 [System.Serializable]
 public class Unit
 {
+	[Header("Base info")]
 	public string name;
+	[SerializeField]
+	Race race;
+	[SerializeField][Range(0,1)]
+	int side;
+	[Header("Battle info")]
 	[SerializeField]
 	int[] position;
 	[SerializeField][Range(0,2)]
 	int actions;
 	[SerializeField]
-	int[] healthPoints = new int[2];//[0]<<Current,[1]<<Max
-	[SerializeField]
 	int initiative;
+	[Header("Stats")]
 	[SerializeField]
-	Race race;
+	int[] healthPoints = new int[2];//[0]<<Current,[1]<<Max
+	[Header("Equipment")]
 	[SerializeField]
 	Weapon weapon;
 	[SerializeField]
+	Helmet helmet;
+	[SerializeField]
 	Armor armor;
+	[Header("Visuals")]
 	[SerializeField]
 	GameObject pawn;
+	[SerializeField]
+	GameObject pawnHelmet;
 	[SerializeField]
 	GameObject pawnArmor;
 	[SerializeField]
@@ -30,6 +41,16 @@ public class Unit
 	public string getName()
 	{
 		return name;
+	}
+
+	public Race getRace()
+	{
+		return race;
+	}
+
+	public int getSide()
+	{
+		return side;
 	}
 
 	public int[] getPosition()
@@ -55,8 +76,29 @@ public class Unit
 	public void setPawn(GameObject pawnPrefab)
 	{
 		pawn = GameObject.Instantiate(pawnPrefab, new Vector3(0,0,0), Quaternion.identity);
+		pawn.GetComponent<Pawn>().setPawnModel(race.getModel(),race.getModelSprite());
+		pawnHelmet = pawn.GetComponent<Pawn>().getHelmet();
+		setHelmetSprite();
 		pawnArmor = pawn.GetComponent<Pawn>().getArmor();
+		setArmorSprite();
 		pawnWeapon = pawn.GetComponent<Pawn>().getWeapon();
+		setWeaponSprite();
+		if (side == 1)
+		{
+			pawn.GetComponent<Pawn>().setIndicator(Color.red);
+		}
+	}
+
+	public void setHelmetSprite()
+	{
+		if (helmet != null)
+		{
+			pawnHelmet.GetComponent<SpriteRenderer>().sprite = helmet.getSprite();
+		}
+		else
+		{
+			pawnHelmet.GetComponent<SpriteRenderer>().sprite = null;
+		}
 	}
 
 	public GameObject getPawn()
@@ -67,6 +109,11 @@ public class Unit
 	public void setWeaponSprite()
 	{
 		pawnWeapon.GetComponent<SpriteRenderer>().sprite = weapon.getSprite();
+	}
+
+	public Weapon getWeapon()
+	{
+		return weapon;
 	}
 
 	public void setArmorSprite()

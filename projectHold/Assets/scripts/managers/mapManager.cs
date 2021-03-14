@@ -123,16 +123,23 @@ public class mapManager : MonoBehaviour
 		}
 	}
 
-	public void moveRangeGenerateTile(int x, int y)
+	public void generateRangeTile(int x, int y, Tile tile)
 	{
-		rangeTilemap.SetTile(new Vector3Int(x, y, 0), occupied);
+		rangeTilemap.SetTile(new Vector3Int(x, y, 0), tile);
 	}
 
 	public void moveRangeGenerate(Unit unit)
 	{
 		clearRangeTilemap();
-		AStar aStar= new AStar(currentMap.getSize(),this);
-		aStar.generateRange(unit.getPosition()[0], unit.getPosition()[1], unit.getSpeed());
+		AStar aStar= new AStar(currentMap.getSize(),this, aStarMode.move);
+		aStar.generateRange(unit.getPosition()[0], unit.getPosition()[1], unit.getSpeed(),occupied);
+	}
+
+	public void attackRangeGenerate(Unit unit)
+	{
+		clearRangeTilemap();
+		AStar aStar = new AStar(currentMap.getSize(), this, aStarMode.attack);
+		aStar.generateRange(unit.getPosition()[0], unit.getPosition()[1], unit.getRace().getAttackRange(unit.getWeapon().getLeght()),highObstacle);
 	}
 
 	public void pathGenerateTile(int x, int y)

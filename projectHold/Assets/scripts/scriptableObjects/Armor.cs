@@ -7,6 +7,8 @@ using UnityEngine;
 public class Armor : ScriptableObject
 {
 	public new string name;
+	[SerializeField][Range(0f,1f)]
+	float coverage;
 	[SerializeField]
 	int slashResistance;
 	[SerializeField]

@@ -20,6 +20,11 @@ public class Weapon : ScriptableObject
 	[SerializeField]
 	Sprite sprite;
 
+	public int getLeght()
+	{
+		return lenght;
+	}
+
 	public Sprite getSprite()
 	{
 		return sprite;

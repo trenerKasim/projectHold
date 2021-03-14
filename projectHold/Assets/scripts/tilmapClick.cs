@@ -10,5 +10,6 @@ public class tilmapClick : MonoBehaviour
     public void MouseDown()
 	{
 		battleManager.moving();
+		battleManager.attacking();
 	}
 }
